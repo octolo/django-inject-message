@@ -111,6 +111,10 @@ Message `content` is injected as HTML. Only trusted staff should edit messages i
 
 ## Development
 
+CI tests Python 3.12 with Django 5.2 and checks Bandit (medium/high confidence
+and severity), runtime dependency advisories, and package builds. Ruff findings
+are reported but temporarily non-blocking.
+
 ```bash
 PYTHONPATH=src python -m pytest tests/ -v
 PYTHONPATH=src python manage.py migrate
@@ -119,3 +123,21 @@ PYTHONPATH=src python manage.py migrate
 ## License
 
 MIT
+
+## Local audit
+
+Install the project's development/test dependencies (including both local
+packages where applicable), plus the audit tools:
+
+```bash
+python -m pip install ruff mypy bandit pip-audit vulture radon xenon pytest pytest-django pytest-cov build twine
+make audit
+```
+
+Use the activated environment's Python, or pass `make audit PYTHON=/path/to/python`.
+On systems without Make, run `python scripts/audit.py` directly. Git is required;
+the geoaddress widget tests also require Node.js. The audit reports missing test
+suites and runs all available checks even when earlier checks fail.
+Xenon checks the absolute C, module B, and average A complexity thresholds. Existing
+lint, typing, security, dependency, or test findings can make the audit fail.
+CI also runs this audit as a non-blocking job and separately reports Radon maintainability without imposing a threshold.
